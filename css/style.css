@@ -1,0 +1,6 @@
+body {
+	text-align: center;
+}
+#game-board {
+	border: 1px solid black;
+}
