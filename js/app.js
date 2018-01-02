@@ -1,6 +1,9 @@
 console.log('canvas linked');
 
-// window.onload = drawTerrain();
+// window.onload = start();
+
+
+const scorch = () => {
 
 
 let canvas = document.getElementById('game-board');
@@ -50,7 +53,7 @@ function drawTerrain() {
 		ctx.moveTo(i, maxHeight);
 		ctx.lineTo(i, height);
 		ctx.stroke();
-		// ctx.strokeStyle = 'lightseagreen';
+		ctx.strokeStyle = 'lightseagreen';
 	}
 }
 
@@ -105,9 +108,33 @@ let tank1 = new Tank(placeTank(2,1),40);
 tank1.drawBody();
 tank1.drawCannon();
 
+// let test = ctx.getImageData(20, 20, 1, 1).data;
 
 
 
+//testing bitmap stuff for canvas using getImageData etc
+let stop = 0;
+
+for (let i = 0; i < canvas.width; i++) {
+	for (let j = 0; j < canvas.height; j ++) {
+		let bitmapArr = ctx.getImageData(i,j,1,1).data;
+		for (let k = 0; k < bitmapArr.length; k++) {
+			if (bitmapArr[k] > 0) {
+				console.log('it worked somehow', bitmapArr, i, j);
+				stop++;
+				if (stop > 50) {
+					return;
+				}
+			}
+		}
+	}
+}
+
+
+
+}
+
+scorch();
 
 
 
