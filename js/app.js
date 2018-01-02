@@ -7,6 +7,11 @@ let tank3;
 let allPlayers = [];
 const scorch = () => {
 
+	//general properties
+	const playerDisplay = document.getElementById('turn');
+	const powerDisplay = document.getElementById('power');
+	const angleDisplay = document.getElementById('angle');
+
 	//canvas
 	let canvas = document.getElementById('game-board');
 	let ctx = canvas.getContext('2d');
@@ -94,8 +99,28 @@ const scorch = () => {
 		}
 	}
 
+	//updates the divs below the canvas with info about whose turn it is and their tank properties
+	function updateDisplay() {
+		let whoseTurn;
+		let arrPos;
+		for (let i = 0; i < allPlayers.length; i++) {
+			if (allPlayers[i].isTurn) {
+				whoseTurn = allPlayers[i];
+				arrPos = i;
+			}
+		}
+		playerDisplay.innerHTML = 'It is player '+arrPos+'\'s turn.';
+		powerDisplay.innerHTML = 'Current power: '+whoseTurn.power+'.';
+		angleDisplay.innerHTML = 'Current angle: '+whoseTurn.angle+'.';
+	}
 
-
+	//loops the display display
+	function frameLoop() {
+		updateDisplay();
+		setInterval(()=>{
+			frameLoop();
+		}, 100);
+	}
 
 
 	//new tank class for building tanks, will refine
@@ -254,6 +279,8 @@ const scorch = () => {
 			}
 		}
 	});
+
+	frameLoop();
 
 }
 

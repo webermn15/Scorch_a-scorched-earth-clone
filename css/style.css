@@ -1,5 +1,16 @@
+/** {
+	border: 1px black solid;
+}*/
+
 body {
 	text-align: center;
+}
+.info-container {
+	margin: 0 auto;
+	text-align: center;
+	width: 1000px;
+	display: flex;
+	justify-content: space-between;
 }
 #game-board {
 	border: 1px solid black;
