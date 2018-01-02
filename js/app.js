@@ -17,12 +17,17 @@ const scorch = () => {
 	let ctx = canvas.getContext('2d');
 
 
+	//canvas background separate from the other one for collision purposes
+	let canvasBackground = document.getElementById('background');
+	let context = canvasBackground.getContext('2d');
+
+
 	//coole background gradient thing
 	function bgGradient() {
-		let gradientHeight = canvas.height / 10;
+		let gradientHeight = canvasBackground.height / 10;
 		for (let i = 0; i < 11; i++) {
-			ctx.fillStyle = 'rgba(85, 15, 155,'+(i/10)+')';
-			ctx.fillRect(0, canvas.height - (gradientHeight * i), canvas.width, gradientHeight);
+			context.fillStyle = 'rgba(85, 15, 155,'+(i/10)+')';
+			context.fillRect(0, canvasBackground.height - (gradientHeight * i), canvasBackground.width, gradientHeight);
 		}
 	}
 
@@ -92,7 +97,7 @@ const scorch = () => {
 		for (let i = 0; i < canvas.height; i++) {
 			let checkCollision = ctx.getImageData(xpos, i, 1, 1).data;
 			for (let j = 0; j < checkCollision.length; j++) {
-				if (checkCollision[j] == 0) {
+				if (checkCollision[j] > 0) {
 					return i;
 				}
 			}

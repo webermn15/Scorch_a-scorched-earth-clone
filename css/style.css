@@ -4,6 +4,12 @@
 
 body {
 	text-align: center;
+	margin: 0 auto;
+}
+.canvas-container {
+	position: relative;
+	left: calc(50% - 500px);
+	top: 20px;
 }
 .info-container {
 	margin: 0 auto;
@@ -11,7 +17,18 @@ body {
 	width: 1000px;
 	display: flex;
 	justify-content: space-between;
+	margin-top: 5px;
 }
 #game-board {
 	border: 1px solid black;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 1;
+}
+#background {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 0;
 }
