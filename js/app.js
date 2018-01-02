@@ -52,8 +52,31 @@ function drawTerrain() {
 		ctx.stroke();
 		// ctx.strokeStyle = 'lightseagreen';
 	}
-	
 }
+
+
+
+//these 2 functions create constraints for the generated tank based on player number, then generate a random x coordinate to place it at withint it's territory
+
+function placeTank(numOfPlayers,playerNumber) {
+	let rightBorder = divideTerrain(numOfPlayers, playerNumber);
+	// console.log(rightBorder);
+	let leftBorder = rightBorder - rightBorder;
+	// console.log(leftBorder);
+	return Math.floor(Math.random()*(rightBorder - leftBorder + 1) + leftBorder);
+}
+
+
+function divideTerrain(numOfPlayers, playerNumber) {
+	let width = canvas.width;
+	let territory = width / numOfPlayers;
+	return playerNumber * territory;
+}
+
+
+
+
+
 
 //new tank class for building tanks, will refine
 class Tank {
@@ -77,7 +100,7 @@ class Tank {
 
 drawTerrain();
 
-let tank1 = new Tank(40,40);
+let tank1 = new Tank(placeTank(2,1),40);
 
 tank1.drawBody();
 tank1.drawCannon();
