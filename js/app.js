@@ -5,17 +5,18 @@ console.log('canvas linked');
 
 const scorch = () => {
 
-
+	//canvas
 	let canvas = document.getElementById('game-board');
 	let ctx = canvas.getContext('2d');
+	ctx.lineCap = 'round';
 
 
-
+	//coole background gradient thing
 	function bgGradient() {
 		let gradientHeight = canvas.height / 10;
-		for (let i = 10; i > 0; i--) {
-			ctx.fillStyle = 'rgba(84, 34, 133,'+(i/10)+')';
-			ctx.fillRect(0, (i * gradientHeight), canvas.width, gradientHeight);
+		for (let i = 0; i < 11; i++) {
+			ctx.fillStyle = 'rgba(110, 40, 180,'+(i/10)+')';
+			ctx.fillRect(0, canvas.height - (gradientHeight * i), canvas.width, gradientHeight);
 		}
 	}
 
@@ -85,7 +86,7 @@ const scorch = () => {
 		for (let i = 0; i < canvas.height; i++) {
 			let checkCollision = ctx.getImageData(xpos, i, 1, 1).data;
 			for (let j = 0; j < checkCollision.length; j++) {
-				if (checkCollision[j] > 0) {
+				if (checkCollision[j] == 0) {
 					return i;
 				}
 			}
@@ -109,14 +110,14 @@ const scorch = () => {
 			ctx.beginPath();
 			ctx.arc(this.xpos, this.ypos, 10, Math.PI , 0, false);
 			ctx.fill();
-			ctx.fillStyle = 'peachpuff';
+			ctx.fillStyle = 'white';
 			ctx.closePath();
 		}
 		drawCannon() {
 			ctx.beginPath();
 			ctx.fillRect(this.xpos - 1, this.ypos, 3, -20);
 			ctx.fill();
-			ctx.fillStyle = 'peachpuff';
+			ctx.fillStyle = 'white';
 			ctx.closePath();
 
 			// ctx.moveTo(this.xpos, this.ypos);
@@ -155,7 +156,8 @@ const scorch = () => {
 	tank2.drawBody();
 	tank2.drawCannon();
 
-	// let test = ctx.getImageData(20, 20, 1, 1).data;
+	let test = ctx.getImageData(20, 20, 1, 1).data;
+	console.log(test);
 
 
 
