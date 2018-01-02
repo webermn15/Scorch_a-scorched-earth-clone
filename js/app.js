@@ -1,27 +1,28 @@
 console.log('canvas linked');
 
 // window.onload = start();
-
-
+let tank1;
+let tank2;
+let tank3;
+let allPlayers = [];
 const scorch = () => {
 
 	//canvas
 	let canvas = document.getElementById('game-board');
 	let ctx = canvas.getContext('2d');
-	ctx.lineCap = 'round';
 
 
 	//coole background gradient thing
 	function bgGradient() {
 		let gradientHeight = canvas.height / 10;
 		for (let i = 0; i < 11; i++) {
-			ctx.fillStyle = 'rgba(110, 40, 180,'+(i/10)+')';
+			ctx.fillStyle = 'rgba(85, 15, 155,'+(i/10)+')';
 			ctx.fillRect(0, canvas.height - (gradientHeight * i), canvas.width, gradientHeight);
 		}
 	}
 
 
-
+	//draws the foreground upon which the tanks will be laid 
 	function drawTerrain() {
 		//aligns the drawn lines so they're nice and crisp
 		let iStrokeWidth = 1;
@@ -99,12 +100,13 @@ const scorch = () => {
 
 	//new tank class for building tanks, will refine
 	class Tank {
-		constructor(xpos, ypos, power, angle) {
+		constructor(xpos, ypos, power, angle, isTurn) {
 			// this.number = number;
 			this.xpos = xpos;
 			this.ypos = ypos;
 			this.power = 100; //arbitrary
 			this.angle = 90; //degress
+			this.isTurn = false;
 		}
 		drawBody() {
 			ctx.beginPath();
@@ -115,7 +117,7 @@ const scorch = () => {
 		}
 		drawCannon() {
 			ctx.beginPath();
-			ctx.fillRect(this.xpos - 1, this.ypos, 3, -20);
+			ctx.fillRect(this.xpos - 1, this.ypos - 1, 3, -15);
 			ctx.fill();
 			ctx.fillStyle = 'white';
 			ctx.closePath();
@@ -124,10 +126,25 @@ const scorch = () => {
 			// ctx.lineTo(this.xpos, this.ypos - 20);
 			// ctx.stroke();
 		}
-		angleCannon() {
-			console.log('angling...');
+		angleCannon(direction) {
+			if (direction == 'left') {
+				this.angle -= 5;
+			}
+			else if (direction == 'right') {
+				this.angle += 5;
+			}
+
+			//fix draw function to update this binch
+
 		}
-		powerCannon() {
+		powerCannon(direction) {
+			if (direction == 'down') {
+				this.power -= 5;
+			}
+			else if (direction == 'up') {
+				this.power += 5;
+			}
+
 			console.log('powering...');
 		}
 		fireCannon() {
@@ -138,27 +155,49 @@ const scorch = () => {
 	bgGradient();
 	drawTerrain();
 
-	let xTank = placeTankX(2,1);
+
+	//this huge block of ugly let declarations is temporary, for testing purposes 
+
+	let xTank = placeTankX(3,1);
 
 	let yTank = placeTankY(xTank);
 
-	let tank1 = new Tank(xTank,yTank);
+	tank1 = new Tank(xTank,yTank);
 
-	tank1.drawBody();
-	tank1.drawCannon();
 
-	let xxTank = placeTankX(2,2);
+	let xxTank = placeTankX(3,2);
 
 	let yyTank = placeTankY(xxTank);
 
-	let tank2 = new Tank(xxTank,yyTank);
+	tank2 = new Tank(xxTank,yyTank);
+
+
+	let xxxTank = placeTankX(3,3);
+
+	let yyyTank = placeTankY(xxxTank);
+
+	tank3 = new Tank(xxxTank, yyyTank);
+
+
+	tank1.drawBody();
+	tank1.drawCannon();
+	allPlayers.push(tank1);
+	tank1.isTurn = true;
+
 
 	tank2.drawBody();
 	tank2.drawCannon();
+	allPlayers.push(tank2);
+
+
+	tank3.drawBody();
+	tank3.drawCannon();
+	allPlayers.push(tank3);
+
 
 	let test = ctx.getImageData(20, 20, 1, 1).data;
 	console.log(test);
-
+	console.log(allPlayers);
 
 
 	// //testing bitmap stuff for canvas using getImageData etc
@@ -180,8 +219,43 @@ const scorch = () => {
 	// }
 
 
+	//WACKY LOOKIN keyboard input listener 
+	
+	document.addEventListener('keydown', function(event){
+		let key = event.which;
+		let whoseTurn;
+		let currentTurn;
+		for (let i = 0; i < allPlayers.length; i++) {
+			if (allPlayers[i].isTurn) {
+				whoseTurn = allPlayers[i];
+				currentTurn = i;
+			}
+		};
+		if (key === 39) {
+			whoseTurn.angleCannon('right');
+		}
+		else if (key === 37) {
+			whoseTurn.angleCannon('left');
+		}
+		else if (key === 38) {
+			whoseTurn.powerCannon('up');
+		}
+		else if (key === 40) {
+			whoseTurn.powerCannon('down');
+		}
+		else if (key === 32) {
+			whoseTurn.fireCannon();
+			whoseTurn.isTurn = false;
+			if (allPlayers[currentTurn+1] !== null) {
+				allPlayers[currentTurn+1].isTurn = true;
+			}
+			else {
+				allPlayers[0].isTurn = true;
+			}
+		}
+	});
 
-	}
+}
 
 scorch();
 
