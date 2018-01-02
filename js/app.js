@@ -53,29 +53,34 @@ function drawTerrain() {
 		ctx.moveTo(i, maxHeight);
 		ctx.lineTo(i, height);
 		ctx.stroke();
-		ctx.strokeStyle = 'lightseagreen';
+		// ctx.strokeStyle = 'lightseagreen';
 	}
 }
 
 
 
-//these 2 functions create constraints for the generated tank based on player number, then generate a random x coordinate to place it at withint it's territory
+//this creates constraints for the generated tank based on player number, then generate a random x coordinate to place it at withint it's territory
 
-function placeTank(numOfPlayers,playerNumber) {
-	let rightBorder = divideTerrain(numOfPlayers, playerNumber);
-	// console.log(rightBorder);
-	let leftBorder = rightBorder - rightBorder;
-	// console.log(leftBorder);
+function placeTankX(numOfPlayers,playerNumber) {
+
+	let terrWidth = canvas.width / numOfPlayers;
+	let rightBorder = playerNumber * terrWidth;
+
+	let leftBorder = rightBorder - (rightBorder / numOfPlayers);
+
 	return Math.floor(Math.random()*(rightBorder - leftBorder + 1) + leftBorder);
 }
 
-
-function divideTerrain(numOfPlayers, playerNumber) {
-	let width = canvas.width;
-	let territory = width / numOfPlayers;
-	return playerNumber * territory;
+function placeTankY(xpos) {
+	for (let i = 0; i < canvas.height; i++) {
+		let checkCollision = ctx.getImageData(xpos, i, 1, 1).data;
+		for (let j = 0; j < checkCollision.length; j++) {
+			if (checkCollision[j] > 0) {
+				return i;
+			}
+		}
+	}
 }
-
 
 
 
@@ -103,32 +108,45 @@ class Tank {
 
 drawTerrain();
 
-let tank1 = new Tank(placeTank(2,1),40);
+let xTank = placeTankX(2,1);
+
+let yTank = placeTankY(xTank);
+
+let tank1 = new Tank(xTank,yTank);
 
 tank1.drawBody();
 tank1.drawCannon();
+
+let xxTank = placeTankX(2,2);
+
+let yyTank = placeTankY(xxTank);
+
+let tank2 = new Tank(xxTank,yyTank);
+
+tank2.drawBody();
+tank2.drawCannon();
 
 // let test = ctx.getImageData(20, 20, 1, 1).data;
 
 
 
-//testing bitmap stuff for canvas using getImageData etc
-let stop = 0;
+// //testing bitmap stuff for canvas using getImageData etc
+// let stop = 0;
 
-for (let i = 0; i < canvas.width; i++) {
-	for (let j = 0; j < canvas.height; j ++) {
-		let bitmapArr = ctx.getImageData(i,j,1,1).data;
-		for (let k = 0; k < bitmapArr.length; k++) {
-			if (bitmapArr[k] > 0) {
-				console.log('it worked somehow', bitmapArr, i, j);
-				stop++;
-				if (stop > 50) {
-					return;
-				}
-			}
-		}
-	}
-}
+// for (let i = 0; i < canvas.width; i++) {
+// 	for (let j = 0; j < canvas.height; j ++) {
+// 		let bitmapArr = ctx.getImageData(i,j,1,1).data;
+// 		for (let k = 0; k < bitmapArr.length; k++) {
+// 			if (bitmapArr[k] > 0) {
+// 				console.log('it worked somehow', bitmapArr, i, j);
+// 				stop++;
+// 				if (stop > 50) {
+// 					return;
+// 				}
+// 			}
+// 		}
+// 	}
+// }
 
 
 
