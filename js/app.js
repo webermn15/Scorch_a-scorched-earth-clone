@@ -106,7 +106,7 @@ const scorch = () => {
 		for (let i = 0; i < allPlayers.length; i++) {
 			if (allPlayers[i].isTurn) {
 				whoseTurn = allPlayers[i];
-				arrPos = i;
+				arrPos = i + 1;
 			}
 		}
 		playerDisplay.innerHTML = 'It is player '+arrPos+'\'s turn.';
@@ -222,7 +222,6 @@ const scorch = () => {
 
 	let test = ctx.getImageData(20, 20, 1, 1).data;
 	console.log(test);
-	console.log(allPlayers);
 
 
 	// //testing bitmap stuff for canvas using getImageData etc
@@ -271,12 +270,13 @@ const scorch = () => {
 		else if (key === 32) {
 			whoseTurn.fireCannon();
 			whoseTurn.isTurn = false;
-			if (allPlayers[currentTurn+1] !== null) {
+			if (allPlayers[currentTurn+1] !== undefined) {
 				allPlayers[currentTurn+1].isTurn = true;
 			}
 			else {
 				allPlayers[0].isTurn = true;
 			}
+			console.log(allPlayers);
 		}
 	});
 
