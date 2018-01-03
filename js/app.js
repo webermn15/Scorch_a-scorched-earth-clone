@@ -11,6 +11,8 @@ const scorch = () => {
 	const playerDisplay = document.getElementById('turn');
 	const powerDisplay = document.getElementById('power');
 	const angleDisplay = document.getElementById('angle');
+
+	//buttons
 	const twoButton = document.getElementById('2players');
 	const threeButton = document.getElementById('3players');
 	const fourButton = document.getElementById('4players');
@@ -122,9 +124,7 @@ const scorch = () => {
 		// gonna change this to requestAnimationFrame
 		frameLoop() {
 			game.updateDisplay();
-			setInterval(()=>{
-				game.frameLoop();
-			}, 100);
+			window.requestAnimationFrame(game.frameLoop);
 		},
 
 		placeTank(num) {
@@ -201,10 +201,10 @@ const scorch = () => {
 		}
 		angleCannon(direction) {
 			if (direction == 'left') {
-				this.angle -= 5;
+				this.angle -= 1;
 			}
 			else if (direction == 'right') {
-				this.angle += 5;
+				this.angle += 1;
 			}
 
 			//fix draw function to update this binch
@@ -212,19 +212,44 @@ const scorch = () => {
 		}
 		powerCannon(direction) {
 			if (direction == 'down') {
-				this.power -= 5;
+				this.power -= 1;
 			}
 			else if (direction == 'up') {
-				this.power += 5;
+				this.power += 1;
 			}
 
 			console.log('powering...');
 		}
 		fireCannon() {
+
+			//BIG STRUGGLIN
+
+			//strugglin real hard on math related stuff it's been too long since sohcahtoa
+			let x = this.xpos;
+			let y = this.ypos;
+			let grav = 9.8;
+			let vi = this.power;
+			let toRadians =  this.angle * Math.PI / 180;
+			let vx = vi * Math.cos(toRadians);
+			let vy = vi * Math.sin(toRadians);
+
+			let stepSize = 0.1;
+
+			let deltaX;
+			let deltaY;
+
+			for (let i = 0; i < 20; i++) {
+				let time = i * stepSize;
+				deltaX = vx	* time / 2;
+				deltaY = vy * time - (grav * time * time) / 2;
+				console.log(deltaX, deltaY);
+			}
+
+			
+
 			console.log('kaboom');
 		}
 	}
-
 
 
 	game.bgGradient();
@@ -242,7 +267,7 @@ const scorch = () => {
 				whoseTurn = game.allPlayers[i];
 				currentTurn = i;
 			}
-		};
+		}
 		if (key === 39) {
 			whoseTurn.angleCannon('right');
 		}
