@@ -28,7 +28,7 @@ const scorch = () => {
 
 		allPlayers: [],
 
-		players: 0,
+		players: 3,
 
 		//gotta have it ya know
 		bindEvents() {
@@ -96,9 +96,9 @@ const scorch = () => {
 		updateDisplay() {
 			let whoseTurn;
 			let arrPos;
-			for (let i = 0; i < allPlayers.length; i++) {
-				if (allPlayers[i].isTurn) {
-					whoseTurn = allPlayers[i];
+			for (let i = 0; i < game.allPlayers.length; i++) {
+				if (game.allPlayers[i].isTurn) {
+					whoseTurn = game.allPlayers[i];
 					arrPos = i + 1;
 				}
 			}
@@ -109,20 +109,109 @@ const scorch = () => {
 
 		// gonna change this to requestAnimationFrame
 		frameLoop() {
-			updateDisplay();
+			game.updateDisplay();
 			setInterval(()=>{
-				frameLoop();
+				game.frameLoop();
 			}, 100);
+		},
+
+		placeTank(num) {
+			for (let i = 0; i < num; i++) {
+				let x = game.placeTankX(i+1);
+				let y = game.placeTankY(x);
+				game.allPlayers[i] = new Tank(x,y);
+				if (i == 0) {
+					game.allPlayers[0].isTurn = true;
+				}
+			}
+			game.frameLoop();
+			game.drawTanks();
+			console.log(game.allPlayers);
+		},
+
+		placeTankX(playerNumber) {
+
+			let terrWidth = canvas.width / game.players;
+			let rightBorder = playerNumber * terrWidth;
+
+			let leftBorder = rightBorder - (rightBorder / game.players);
+
+			return Math.floor(Math.random()*(rightBorder - leftBorder + 1) + leftBorder);
+		},
+
+		placeTankY(xpos) {
+			for (let i = 0; i < canvas.height; i++) {
+				let checkCollision = ctx.getImageData(xpos, i, 1, 1).data;
+				for (let j = 0; j < checkCollision.length; j++) {
+					if (checkCollision[j] > 0) {
+						return i;
+					}
+				}
+			}
+		},
+
+		drawTanks() {
+			for (let i = 0; i < game.allPlayers.length; i++) {
+				game.allPlayers[i].drawBody();
+				game.allPlayers[i].drawCannon();
+			}
 		}
 	}
 
 
+	//new tank class for building tanks, refined some, still needs additional refining
+	class Tank {
+		constructor(xpos, ypos, power, angle, isTurn) {
+			// this.number = number;
+			this.xpos = xpos;
+			this.ypos = ypos;
+			this.power = 100; //arbitrary
+			this.angle = 90; //degreess
+			this.isTurn = false;
+		}
+		drawBody() {
+			ctx.beginPath();
+			ctx.arc(this.xpos, this.ypos, 10, Math.PI , 0, false);
+			ctx.fill();
+			ctx.fillStyle = 'white';
+			ctx.closePath();
+		}
+		drawCannon() {
+			ctx.beginPath();
+			ctx.fillRect(this.xpos - 1, this.ypos - 1, 3, -15);
+			ctx.fill();
+			ctx.fillStyle = 'white';
+			ctx.closePath();
 
+			// ctx.moveTo(this.xpos, this.ypos);
+			// ctx.lineTo(this.xpos, this.ypos - 20);
+			// ctx.stroke();
+		}
+		angleCannon(direction) {
+			if (direction == 'left') {
+				this.angle -= 5;
+			}
+			else if (direction == 'right') {
+				this.angle += 5;
+			}
 
+			//fix draw function to update this binch
 
+		}
+		powerCannon(direction) {
+			if (direction == 'down') {
+				this.power -= 5;
+			}
+			else if (direction == 'up') {
+				this.power += 5;
+			}
 
-
-
+			console.log('powering...');
+		}
+		fireCannon() {
+			console.log('kaboom');
+		}
+	}
 
 
 
@@ -186,6 +275,7 @@ const scorch = () => {
 
 
 
+
 	//this creates constraints for the generated tank based on player number, then generate a random x coordinate to place it at withint it's territory
 
 	function placeTankX(numOfPlayers,playerNumber) {
@@ -233,105 +323,24 @@ const scorch = () => {
 	// }
 
 
-	//new tank class for building tanks, refined some, still needs additional refining
-	class Tank {
-		constructor(xpos, ypos, power, angle, isTurn) {
-			// this.number = number;
-			this.xpos = xpos;
-			this.ypos = ypos;
-			this.power = 100; //arbitrary
-			this.angle = 90; //degreess
-			this.isTurn = false;
-		}
-		drawBody() {
-			ctx.beginPath();
-			ctx.arc(this.xpos, this.ypos, 10, Math.PI , 0, false);
-			ctx.fill();
-			ctx.fillStyle = 'white';
-			ctx.closePath();
-		}
-		drawCannon() {
-			ctx.beginPath();
-			ctx.fillRect(this.xpos - 1, this.ypos - 1, 3, -15);
-			ctx.fill();
-			ctx.fillStyle = 'white';
-			ctx.closePath();
-
-			// ctx.moveTo(this.xpos, this.ypos);
-			// ctx.lineTo(this.xpos, this.ypos - 20);
-			// ctx.stroke();
-		}
-		angleCannon(direction) {
-			if (direction == 'left') {
-				this.angle -= 5;
-			}
-			else if (direction == 'right') {
-				this.angle += 5;
-			}
-
-			//fix draw function to update this binch
-
-		}
-		powerCannon(direction) {
-			if (direction == 'down') {
-				this.power -= 5;
-			}
-			else if (direction == 'up') {
-				this.power += 5;
-			}
-
-			console.log('powering...');
-		}
-		fireCannon() {
-			console.log('kaboom');
-		}
-	}
 
 	game.bgGradient();
 	game.drawTerrain();
 
 
-	//this huge block of ugly let declarations is temporary, for testing purposes 
+	// //this huge block of ugly let declarations is temporary, for testing purposes 
 
-	let xTank = placeTankX(3,1);
+	// let xTank = placeTankX(3,1);
 
-	let yTank = placeTankY(xTank);
+	// let yTank = placeTankY(xTank);
 
-	tank1 = new Tank(xTank,yTank);
-
-
-	let xxTank = placeTankX(3,2);
-
-	let yyTank = placeTankY(xxTank);
-
-	tank2 = new Tank(xxTank,yyTank);
+	// tank1 = new Tank(xTank,yTank);
 
 
-	let xxxTank = placeTankX(3,3);
-
-	let yyyTank = placeTankY(xxxTank);
-
-	tank3 = new Tank(xxxTank, yyyTank);
-
-
-	tank1.drawBody();
-	tank1.drawCannon();
-	allPlayers.push(tank1);
-	tank1.isTurn = true;
-
-
-	tank2.drawBody();
-	tank2.drawCannon();
-	allPlayers.push(tank2);
-
-
-	tank3.drawBody();
-	tank3.drawCannon();
-	allPlayers.push(tank3);
-
-
-	// let test = ctx.getImageData(20, 20, 1, 1).data;
-	// console.log(test);
+	// tank1.drawBody();
+	// tank1.drawCannon();
+	// allPlayers.push(tank1);
+	// tank1.isTurn = true;
 
 
 	//WACKY LOOKIN keyboard input listener 
@@ -340,9 +349,9 @@ const scorch = () => {
 		let key = event.which;
 		let whoseTurn;
 		let currentTurn;
-		for (let i = 0; i < allPlayers.length; i++) {
-			if (allPlayers[i].isTurn) {
-				whoseTurn = allPlayers[i];
+		for (let i = 0; i < game.allPlayers.length; i++) {
+			if (game.allPlayers[i].isTurn) {
+				whoseTurn = game.allPlayers[i];
 				currentTurn = i;
 			}
 		};
@@ -361,17 +370,18 @@ const scorch = () => {
 		else if (key === 32) {
 			whoseTurn.fireCannon();
 			whoseTurn.isTurn = false;
-			if (allPlayers[currentTurn+1] !== undefined) {
-				allPlayers[currentTurn+1].isTurn = true;
+			if (game.allPlayers[currentTurn+1] !== undefined) {
+				game.allPlayers[currentTurn+1].isTurn = true;
 			}
 			else {
-				allPlayers[0].isTurn = true;
+				game.allPlayers[0].isTurn = true;
 			}
-			console.log(allPlayers);
+			console.log(game.allPlayers);
 		}
 	});
 
-	game.frameLoop();
+	game.placeTank(game.players);
+	// game.frameLoop();
 
 }
 
