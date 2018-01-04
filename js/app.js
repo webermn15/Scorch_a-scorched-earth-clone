@@ -289,15 +289,16 @@ const scorch = () => {
 
 	//tank class to build tanks for players to control 
 	class Tank {
-		constructor(xpos, ypos, color, num, power, angle, isTurn) {
+		constructor(xpos, ypos, color, num, power, angle, isTurn, bodyData) {
 			// this.number = number;
 			this.xpos = xpos;
 			this.ypos = ypos;
 			this.color = color;
 			this.num = num;
-			this.power = 100; //arbitrary
-			this.angle = 90; //degreess
+			this.power = 100; //midpoint of constraints
+			this.angle = 89; //degreess
 			this.isTurn = false;
+			this.bodyData = null;
 		}
 		drawBody() {
 			ctx.beginPath();
@@ -305,34 +306,53 @@ const scorch = () => {
 			ctx.fillStyle = this.color;
 			ctx.fill();
 			ctx.closePath();
+			this.bodyData = ctx.getImageData(this.xpos - 20, this.ypos - 20, 40, 40);
+			// console.log(this.bodyData);
 		}
 		drawCannon() {
+			let toRadians = (this.angle - 90) * (Math.PI / 180);
 			ctx.beginPath();
-			ctx.fillRect(this.xpos - 1, this.ypos - 1, 3, -15);
-			ctx.fillStyle = this.color;
-			ctx.fill();
+			ctx.translate(this.xpos, this.ypos);
+			ctx.moveTo(-1, -1);
+			ctx.rotate(toRadians);
+			ctx.lineTo(-1, -15);
+			ctx.rotate(-toRadians);
+			ctx.lineWidth = 2;
+			ctx.lineCap = 'round';
+			ctx.strokeStyle = this.color;
+			ctx.stroke();
+			ctx.translate(-this.xpos, -this.ypos);
 			ctx.closePath();
+			console.log(this.xpos, this.ypos);
 
-			// ctx.moveTo(this.xpos, this.ypos);
-			// ctx.lineTo(this.xpos, this.ypos - 20);
-			// ctx.stroke();
+			// ctx.beginPath();
+			// ctx.fillRect(this.xpos - 1, this.ypos - 1, 3, -15);
+			// ctx.fillStyle = this.color;
+			// ctx.fill();
+			// ctx.closePath();
 		}
 		angleCannon(direction) {
 			if (direction == 'left' && this.angle > 10) {
 				this.angle -= 1;
+				if (this.angle == 90) {
+					this.angle = 89;
+				}
 			}
 			else if (direction == 'right' && this.angle < 170) {
 				this.angle += 1;
+				if (this.angle == 90) {
+					this.angle = 91;
+				}
 			}
-
+			this.drawCannon();
 			//fix draw function to update this binch
 			// console.log('angling...');
 		}
 		powerCannon(direction) {
-			if (direction == 'down' && this.power > 25) {
+			if (direction == 'down' && this.power > 50) {
 				this.power -= 1;
 			}
-			else if (direction == 'up' && this.power < 200) {
+			else if (direction == 'up' && this.power < 150) {
 				this.power += 1;
 			}
 
@@ -360,13 +380,16 @@ const scorch = () => {
 	document.addEventListener('keydown', function(event){
 		let key = event.which;
 		let whoseTurn;
-		let currentTurn;
+		let nextTurn;
 		for (let i = 0; i < game.allPlayers.length; i++) {
 			if (game.allPlayers[i].isTurn) {
 				whoseTurn = game.allPlayers[i];
-				currentTurn = game.allPlayers[i].num;
+				nextTurn = i+1;
 			}
 		}
+		// console.log(whoseTurn);
+		// console.log(nextTurn);
+
 		if (key === 39) {
 			whoseTurn.angleCannon('right');
 		}
@@ -382,8 +405,8 @@ const scorch = () => {
 		else if (key === 32) {
 			whoseTurn.fireCannon();
 			whoseTurn.isTurn = false;
-			if (game.allPlayers[currentTurn] !== undefined) {
-				game.allPlayers[currentTurn].isTurn = true;
+			if (game.allPlayers[nextTurn] !== undefined) {
+				game.allPlayers[nextTurn].isTurn = true;
 			}
 			else {
 				game.allPlayers[0].isTurn = true;
