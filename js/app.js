@@ -1,5 +1,8 @@
 console.log('canvas linked');
 
+const database = firebase.database();
+
+
 // window.onload = start();
 const scorch = (() => {
 
@@ -262,13 +265,12 @@ const scorch = (() => {
 				colorString = 'lawngreen';
 			}
 			else if (colordata < 30 && colordata > 0) {
-				colorString == 'crimson';
+				colorString = 'crimson';
 			}
 
 			for (let i = 0; i < game.allPlayers.length; i++) {
 				if (colorString == game.allPlayers[i].color) {
 					game.allPlayers.splice(i, 1);
-					console.log('red');
 				}
 			}
 			setTimeout(()=>{

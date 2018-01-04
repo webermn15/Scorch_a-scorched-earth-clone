@@ -14,13 +14,13 @@ p {
 }
 .canvas-container {
 	position: relative;
-	left: calc(50% - 500px);
+	left: calc(50% - 501px);
 	top: 20px;
 }
 .info-container {
 	margin: 0 auto;
 	text-align: center;
-	width: 1000px;
+	width: 1002px;
 	display: flex;
 	justify-content: space-between;
 	margin-top: 5px;
