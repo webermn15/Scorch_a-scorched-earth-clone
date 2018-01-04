@@ -1,10 +1,6 @@
 console.log('canvas linked');
 
 // window.onload = start();
-let tank1;
-let tank2;
-let tank3;
-let allPlayers = [];
 const scorch = () => {
 
 	//general properties
@@ -26,13 +22,18 @@ const scorch = () => {
 	const context = canvasBackground.getContext('2d');
 
 
-
 	//the almighty game object containing all the methods and properties that propel the game forward, into oblivion
 	const game = {
 
 		allPlayers: [],
 
 		players: 0,
+
+		grav: 9.8,
+
+		initialTerrain: null,
+
+		withTanks: null,
 
 		//gotta have it ya know
 		bindEvents() {
@@ -104,6 +105,9 @@ const scorch = () => {
 				ctx.stroke();
 				// ctx.strokeStyle = 'lightseagreen';
 			}
+
+			game.initialTerrain = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			console.log(game.initialTerrain);
 		},
 
 		//updates the divs outside the canvas with information about current tank properties (angle, power, which player, etc)
@@ -167,6 +171,7 @@ const scorch = () => {
 				game.allPlayers[i].drawBody();
 				game.allPlayers[i].drawCannon();
 			}
+			game.withTanks = ctx.getImageData(0, 0, canvas.width, canvas.height);
 		}
 	}
 
@@ -208,7 +213,7 @@ const scorch = () => {
 			}
 
 			//fix draw function to update this binch
-
+			console.log('angling...');
 		}
 		powerCannon(direction) {
 			if (direction == 'down') {
@@ -221,39 +226,49 @@ const scorch = () => {
 			console.log('powering...');
 		}
 		fireCannon() {
-
-			//BIG STRUGGLIN
-
-			//strugglin real hard on math related stuff it's been too long since sohcahtoa
 			let x = this.xpos;
 			let y = this.ypos;
-			let grav = 9.8;
 			let vi = this.power;
 			let toRadians =  this.angle * Math.PI / 180;
 			let vx = vi * Math.cos(toRadians);
 			let vy = vi * Math.sin(toRadians);
 
-			let stepSize = 0.1;
+			let time = 0;
+			let stepSize = 0.02;
 
-			let deltaX;
-			let deltaY;
+			let adjustX = x;
+			let adjustY = y;
 
-			for (let i = 0; i < 20; i++) {
-				let time = i * stepSize;
-				deltaX = vx	* time / 2;
-				deltaY = vy * time - (grav * time * time) / 2;
-				console.log(deltaX, deltaY);
+			ctx.beginPath();
+			ctx.moveTo(x,y);
+
+			// let i = 0;
+			let noHit = true;
+			while (noHit) {
+				time += stepSize;
+				let deltaX = vx	* time / 2;
+				let deltaY = vy * time - (game.grav * time * time) / 2;
+
+				adjustX = x - deltaX;
+				adjustY = y - deltaY;
+				ctx.lineTo(adjustX, adjustY);
+				let checkCollision = ctx.getImageData(adjustX, adjustY, 1, 1).data;
+				for (let j = 0 ; j < checkCollision.length; j++) {
+					if (time > 10 && checkCollision[j] > 0) {
+						noHit = false;
+					}
+				}
+
+				// console.log(adjustX, adjustY);
 			}
-
-			
+			ctx.strokeStyle = 'yellow';
+			ctx.stroke();
 
 			console.log('kaboom');
 		}
 	}
 
 
-	game.bgGradient();
-	game.drawTerrain();
 
 
 	//WACKY LOOKIN keyboard input listener 
@@ -293,9 +308,9 @@ const scorch = () => {
 		}
 	});
 
+	game.bgGradient();
+	game.drawTerrain();
 	game.bindEvents();
-	// game.placeTank(game.players);
-	// game.frameLoop();
 
 }
 
