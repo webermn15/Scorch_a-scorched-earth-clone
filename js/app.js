@@ -29,6 +29,8 @@ const scorch = () => {
 
 		players: 0,
 
+		tankColors: ['blue', 'red', 'green', 'orange'],
+
 		grav: 9.8,
 
 		initialTerrain: null,
@@ -40,15 +42,25 @@ const scorch = () => {
 			twoButton.addEventListener('click', ()=> {
 				game.players = 2;
 				game.placeTank(2);
+				game.hideButtons();
 			});
 			threeButton.addEventListener('click', ()=> {
 				game.players = 3;
 				game.placeTank(3);
+				game.hideButtons();
 			});
 			fourButton.addEventListener('click', ()=> {
 				game.players = 4;
 				game.placeTank(4);
+				game.hideButtons();
 			});
+		},
+
+		hideButtons() {
+			let allButtons = document.getElementsByTagName('button');
+			for (let i in allButtons) {
+				allButtons[i].style.display = 'none';
+			}
 		},
 
 		//coole background generation gradient thing to create a neato bg on a secondary canvas without interfering with the game canvas
@@ -107,7 +119,6 @@ const scorch = () => {
 			}
 
 			game.initialTerrain = ctx.getImageData(0, 0, canvas.width, canvas.height);
-			console.log(game.initialTerrain);
 		},
 
 		//updates the divs outside the canvas with information about current tank properties (angle, power, which player, etc)
@@ -133,9 +144,13 @@ const scorch = () => {
 
 		placeTank(num) {
 			for (let i = 0; i < num; i++) {
+				let randColor = Math.floor(Math.random() * game.tankColors.length);
+				let color = game.tankColors[randColor]
+				game.tankColors.splice(randColor, 1);
 				let x = game.placeTankX(i+1);
 				let y = game.placeTankY(x);
-				game.allPlayers[i] = new Tank(x,y);
+				// console.log(game.tankColors[color])
+				game.allPlayers[i] = new Tank(x, y, color);
 				if (i == 0) {
 					game.allPlayers[0].isTurn = true;
 				}
@@ -178,10 +193,11 @@ const scorch = () => {
 
 	//new tank class for building tanks, refined some, still needs additional refining
 	class Tank {
-		constructor(xpos, ypos, power, angle, isTurn) {
+		constructor(xpos, ypos, color, power, angle, isTurn) {
 			// this.number = number;
 			this.xpos = xpos;
 			this.ypos = ypos;
+			this.color = color;
 			this.power = 100; //arbitrary
 			this.angle = 90; //degreess
 			this.isTurn = false;
@@ -189,15 +205,15 @@ const scorch = () => {
 		drawBody() {
 			ctx.beginPath();
 			ctx.arc(this.xpos, this.ypos, 10, Math.PI , 0, false);
+			ctx.fillStyle = this.color;
 			ctx.fill();
-			ctx.fillStyle = 'white';
 			ctx.closePath();
 		}
 		drawCannon() {
 			ctx.beginPath();
 			ctx.fillRect(this.xpos - 1, this.ypos - 1, 3, -15);
+			ctx.fillStyle = this.color;
 			ctx.fill();
-			ctx.fillStyle = 'white';
 			ctx.closePath();
 
 			// ctx.moveTo(this.xpos, this.ypos);
@@ -226,6 +242,7 @@ const scorch = () => {
 			console.log('powering...');
 		}
 		fireCannon() {
+			ctx.putImageData(game.withTanks, 0, 0);
 			let x = this.xpos;
 			let y = this.ypos;
 			let vi = this.power;
@@ -254,7 +271,7 @@ const scorch = () => {
 				ctx.lineTo(adjustX, adjustY);
 				let checkCollision = ctx.getImageData(adjustX, adjustY, 1, 1).data;
 				for (let j = 0 ; j < checkCollision.length; j++) {
-					if (time > 10 && checkCollision[j] > 0) {
+					if (time > 0.2 && checkCollision[j] > 0) {
 						noHit = false;
 					}
 				}
