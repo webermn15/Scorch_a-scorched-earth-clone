@@ -286,6 +286,7 @@ const scorch = (() => {
 		checkVictory() {
 			if (game.allPlayers.length == 1) {
 				alert('player '+game.allPlayers[0].num+' wins!');
+				scorch();
 			}
 			else {
 				return;
@@ -440,7 +441,9 @@ scorch();
 
 
 
+database.ref().set({
 
+});
 
 
 
