@@ -29,7 +29,7 @@ const scorch = () => {
 
 		players: 0,
 
-		tankColors: ['blue', 'red', 'green', 'orange'],
+		tankColors: ['royalblue', 'red', 'lawngreen', 'gold'],
 
 		grav: 9.8,
 
@@ -56,6 +56,7 @@ const scorch = () => {
 			});
 		},
 
+		//keeps players from drawing more and more and more tankss
 		hideButtons() {
 			let allButtons = document.getElementsByTagName('button');
 			for (let i in allButtons) {
@@ -124,11 +125,11 @@ const scorch = () => {
 		//updates the divs outside the canvas with information about current tank properties (angle, power, which player, etc)
 		updateDisplay() {
 			let whoseTurn;
-			let arrPos;
+			let playerNumber;
 			for (let i = 0; i < game.allPlayers.length; i++) {
 				if (game.allPlayers[i].isTurn) {
 					whoseTurn = game.allPlayers[i];
-					arrPos = i + 1;
+					arrPos = whoseTurn.num;
 				}
 			}
 			playerDisplay.innerHTML = 'It is player '+arrPos+'\'s turn.';
@@ -149,8 +150,9 @@ const scorch = () => {
 				game.tankColors.splice(randColor, 1);
 				let x = game.placeTankX(i+1);
 				let y = game.placeTankY(x);
+				let playerNumber = i + 1;
 				// console.log(game.tankColors[color])
-				game.allPlayers[i] = new Tank(x, y, color);
+				game.allPlayers[i] = new Tank(x, y, color, playerNumber);
 				if (i == 0) {
 					game.allPlayers[0].isTurn = true;
 				}
@@ -182,22 +184,117 @@ const scorch = () => {
 		},
 
 		drawTanks() {
+			ctx.putImageData(game.initialTerrain, 0, 0);
 			for (let i = 0; i < game.allPlayers.length; i++) {
 				game.allPlayers[i].drawBody();
 				game.allPlayers[i].drawCannon();
 			}
 			game.withTanks = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			setTimeout(()=>{
+				game.checkVictory();
+
+			}, 1000);
+		},
+
+		//draws the projectile trajectory and checks whether or not it hits anything
+		checkHit(x, y, power, angle, color) {
+
+			//get the initial vertical and horizontal velocity
+			let vx = power * Math.cos(angle);
+			let vy = power * Math.sin(angle);
+
+			//establish time constant
+			let time = 0;
+			let stepSize = 0.02;
+
+			//begin drawing the line
+			ctx.beginPath();
+			ctx.moveTo(x,y);
+
+			//declare a variable to store the bitmap data that we will use to determine which tank we hit
+			let whichTank;
+
+			//declare boolean to escape loop
+			let noHit = true;
+			// let checkCollision;
+
+			//a loop that progresses the time constant and checks the x & y coordinates each time, drawing the line progressively and checking for collision each step of the way
+			while (noHit) {
+				time += stepSize;
+				let deltaX = vx	* time / 2;
+				let deltaY = vy * time - (game.grav * time * time) / 2;
+
+				let adjustX = x - deltaX;
+				let adjustY = y - deltaY;
+				let checkCollision = ctx.getImageData(adjustX, adjustY, 1, 1).data;
+				for (let j = 0 ; j < checkCollision.length; j++) {
+					if (time > 0.6 && checkCollision[j] > 0) {
+						noHit = false;
+					}
+				}
+				if (time > 0.6 && checkCollision[0] > 0) {
+					whichTank = checkCollision[1];
+					game.playerHit(whichTank);
+				}
+				ctx.lineTo(adjustX, adjustY);
+
+				// console.log(adjustX, adjustY);
+			}
+			ctx.strokeStyle = color;
+			ctx.stroke();
+			// console.log(checkCollision);
+		},
+
+		playerHit(colordata) {
+			let colorString = '';
+			// let whichTank;
+			if (colordata > 95 && colordata < 110) {
+				colorString = 'royalblue';
+			}
+			else if (colordata > 210 && colordata < 220) {
+				colorString = 'gold';
+			}
+			else if (colordata >= 245) {
+				colorString = 'lawngreen';
+			}
+			else if (colordata <= 10) {
+				colorString == 'red';
+			}
+
+			for (let i = 0; i < game.allPlayers.length; i++) {
+				if (colorString == game.allPlayers[i].color) {
+					game.allPlayers.splice(i, 1);
+				}
+			}
+			setTimeout(()=>{
+				game.drawTanks();
+
+			}, 2000);
+
+			console.log(colordata);
+			console.log(colorString);
+			console.log(game.allPlayers);
+		},
+
+		checkVictory() {
+			if (game.allPlayers.length == 1) {
+				alert('player '+game.allPlayers[0].num+' wins!');
+			}
+			else {
+				return;
+			}
 		}
 	}
 
 
-	//new tank class for building tanks, refined some, still needs additional refining
+	//tank class to build tanks for players to control 
 	class Tank {
-		constructor(xpos, ypos, color, power, angle, isTurn) {
+		constructor(xpos, ypos, color, num, power, angle, isTurn) {
 			// this.number = number;
 			this.xpos = xpos;
 			this.ypos = ypos;
 			this.color = color;
+			this.num = num;
 			this.power = 100; //arbitrary
 			this.angle = 90; //degreess
 			this.isTurn = false;
@@ -221,25 +318,25 @@ const scorch = () => {
 			// ctx.stroke();
 		}
 		angleCannon(direction) {
-			if (direction == 'left') {
+			if (direction == 'left' && this.angle > 10) {
 				this.angle -= 1;
 			}
-			else if (direction == 'right') {
+			else if (direction == 'right' && this.angle < 170) {
 				this.angle += 1;
 			}
 
 			//fix draw function to update this binch
-			console.log('angling...');
+			// console.log('angling...');
 		}
 		powerCannon(direction) {
-			if (direction == 'down') {
+			if (direction == 'down' && this.power > 25) {
 				this.power -= 1;
 			}
-			else if (direction == 'up') {
+			else if (direction == 'up' && this.power < 200) {
 				this.power += 1;
 			}
 
-			console.log('powering...');
+			// console.log('powering...');
 		}
 		fireCannon() {
 			ctx.putImageData(game.withTanks, 0, 0);
@@ -247,41 +344,11 @@ const scorch = () => {
 			let y = this.ypos;
 			let vi = this.power;
 			let toRadians =  this.angle * Math.PI / 180;
-			let vx = vi * Math.cos(toRadians);
-			let vy = vi * Math.sin(toRadians);
+			let color = this.color;
 
-			let time = 0;
-			let stepSize = 0.02;
+			game.checkHit(x, y, vi, toRadians, color);
 
-			let adjustX = x;
-			let adjustY = y;
-
-			ctx.beginPath();
-			ctx.moveTo(x,y);
-
-			// let i = 0;
-			let noHit = true;
-			while (noHit) {
-				time += stepSize;
-				let deltaX = vx	* time / 2;
-				let deltaY = vy * time - (game.grav * time * time) / 2;
-
-				adjustX = x - deltaX;
-				adjustY = y - deltaY;
-				ctx.lineTo(adjustX, adjustY);
-				let checkCollision = ctx.getImageData(adjustX, adjustY, 1, 1).data;
-				for (let j = 0 ; j < checkCollision.length; j++) {
-					if (time > 0.2 && checkCollision[j] > 0) {
-						noHit = false;
-					}
-				}
-
-				// console.log(adjustX, adjustY);
-			}
-			ctx.strokeStyle = 'yellow';
-			ctx.stroke();
-
-			console.log('kaboom');
+			// console.log('kaboom');
 		}
 	}
 
@@ -297,7 +364,7 @@ const scorch = () => {
 		for (let i = 0; i < game.allPlayers.length; i++) {
 			if (game.allPlayers[i].isTurn) {
 				whoseTurn = game.allPlayers[i];
-				currentTurn = i;
+				currentTurn = game.allPlayers[i].num;
 			}
 		}
 		if (key === 39) {
@@ -315,8 +382,8 @@ const scorch = () => {
 		else if (key === 32) {
 			whoseTurn.fireCannon();
 			whoseTurn.isTurn = false;
-			if (game.allPlayers[currentTurn+1] !== undefined) {
-				game.allPlayers[currentTurn+1].isTurn = true;
+			if (game.allPlayers[currentTurn] !== undefined) {
+				game.allPlayers[currentTurn].isTurn = true;
 			}
 			else {
 				game.allPlayers[0].isTurn = true;
