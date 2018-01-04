@@ -1,12 +1,13 @@
 console.log('canvas linked');
 
 // window.onload = start();
-const scorch = () => {
+const scorch = (() => {
 
 	//general properties
 	const playerDisplay = document.getElementById('turn');
 	const powerDisplay = document.getElementById('power');
 	const angleDisplay = document.getElementById('angle');
+	const infoContainer = document.getElementsByClassName('info-container')[0];
 
 	//buttons
 	const twoButton = document.getElementById('2players');
@@ -29,7 +30,7 @@ const scorch = () => {
 
 		players: 0,
 
-		tankColors: ['royalblue', 'red', 'lawngreen', 'gold'],
+		tankColors: ['royalblue', 'crimson', 'lawngreen', 'gold'],
 
 		grav: 9.8,
 
@@ -129,10 +130,11 @@ const scorch = () => {
 			for (let i = 0; i < game.allPlayers.length; i++) {
 				if (game.allPlayers[i].isTurn) {
 					whoseTurn = game.allPlayers[i];
-					arrPos = whoseTurn.num;
+					playerNumber = whoseTurn.num;
 				}
 			}
-			playerDisplay.innerHTML = 'It is player '+arrPos+'\'s turn.';
+			playerDisplay.innerHTML = 'It is player '+playerNumber+'\'s turn.';
+			infoContainer.style['background-color'] = whoseTurn.color;
 			powerDisplay.innerHTML = 'Current power: '+whoseTurn.power+'.';
 			angleDisplay.innerHTML = 'Current angle: '+whoseTurn.angle+'.';
 		},
@@ -236,6 +238,9 @@ const scorch = () => {
 					whichTank = checkCollision[1];
 					game.playerHit(whichTank);
 				}
+				if (time > 50 && noHit) {
+					noHit = false;
+				}
 				ctx.lineTo(adjustX, adjustY);
 
 				// console.log(adjustX, adjustY);
@@ -247,23 +252,23 @@ const scorch = () => {
 
 		playerHit(colordata) {
 			let colorString = '';
-			// let whichTank;
 			if (colordata > 95 && colordata < 110) {
 				colorString = 'royalblue';
 			}
 			else if (colordata > 210 && colordata < 220) {
 				colorString = 'gold';
 			}
-			else if (colordata >= 245) {
+			else if (colordata >= 245 && colordata <= 255) {
 				colorString = 'lawngreen';
 			}
-			else if (colordata <= 10) {
-				colorString == 'red';
+			else if (colordata < 30 && colordata > 0) {
+				colorString == 'crimson';
 			}
 
 			for (let i = 0; i < game.allPlayers.length; i++) {
 				if (colorString == game.allPlayers[i].color) {
 					game.allPlayers.splice(i, 1);
+					console.log('red');
 				}
 			}
 			setTimeout(()=>{
@@ -289,7 +294,7 @@ const scorch = () => {
 
 	//tank class to build tanks for players to control 
 	class Tank {
-		constructor(xpos, ypos, color, num, power, angle, isTurn, bodyData) {
+		constructor(xpos, ypos, color, num, power, angle, isTurn, bodyData, cannonData) {
 			// this.number = number;
 			this.xpos = xpos;
 			this.ypos = ypos;
@@ -299,6 +304,7 @@ const scorch = () => {
 			this.angle = 89; //degreess
 			this.isTurn = false;
 			this.bodyData = null;
+			this.cannonData = null;
 		}
 		drawBody() {
 			ctx.beginPath();
@@ -306,16 +312,18 @@ const scorch = () => {
 			ctx.fillStyle = this.color;
 			ctx.fill();
 			ctx.closePath();
-			this.bodyData = ctx.getImageData(this.xpos - 20, this.ypos - 20, 40, 40);
+			this.bodyData = ctx.getImageData(this.xpos - 15, this.ypos - 15, 30, 30);
 			// console.log(this.bodyData);
 		}
 		drawCannon() {
+			ctx.putImageData(this.bodyData, this.xpos - 15, this.ypos - 15);
+
 			let toRadians = (this.angle - 90) * (Math.PI / 180);
 			ctx.beginPath();
 			ctx.translate(this.xpos, this.ypos);
-			ctx.moveTo(-1, -1);
+			ctx.moveTo(-2, -2);
 			ctx.rotate(toRadians);
-			ctx.lineTo(-1, -15);
+			ctx.lineTo(-1, -14);
 			ctx.rotate(-toRadians);
 			ctx.lineWidth = 2;
 			ctx.lineCap = 'round';
@@ -323,13 +331,10 @@ const scorch = () => {
 			ctx.stroke();
 			ctx.translate(-this.xpos, -this.ypos);
 			ctx.closePath();
-			console.log(this.xpos, this.ypos);
 
-			// ctx.beginPath();
-			// ctx.fillRect(this.xpos - 1, this.ypos - 1, 3, -15);
-			// ctx.fillStyle = this.color;
-			// ctx.fill();
-			// ctx.closePath();
+			this.cannonData = ctx.getImageData(this.xpos - 15, this.ypos - 15, 30, 30);
+
+
 		}
 		angleCannon(direction) {
 			if (direction == 'left' && this.angle > 10) {
@@ -344,7 +349,11 @@ const scorch = () => {
 					this.angle = 91;
 				}
 			}
-			this.drawCannon();
+			if (this.angle % 3 == 0) {
+				this.drawCannon();	
+				// console.log(this.angle);
+			}
+			
 			//fix draw function to update this binch
 			// console.log('angling...');
 		}
@@ -360,6 +369,10 @@ const scorch = () => {
 		}
 		fireCannon() {
 			ctx.putImageData(game.withTanks, 0, 0);
+			for (let i = 0; i < game.allPlayers.length; i++) {
+				ctx.putImageData(game.allPlayers[i].cannonData, game.allPlayers[i].xpos - 15, game.allPlayers[i].ypos - 15);
+			}
+			// ctx.putImageData(this.cannonData, this.xpos - 20, this.ypos - 20);
 			let x = this.xpos;
 			let y = this.ypos;
 			let vi = this.power;
@@ -419,7 +432,7 @@ const scorch = () => {
 	game.drawTerrain();
 	game.bindEvents();
 
-}
+});
 
 scorch();
 
