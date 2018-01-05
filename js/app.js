@@ -67,6 +67,7 @@ const scorch = (() => {
 			});
 		},
 
+		//runs only on page load, makes a cool animation to introduce players to the game
 		titleAnimation(step) {
 			ctx.putImageData(game.initialTerrain, 0, 0);
 			let grow = step / 100;
@@ -74,6 +75,7 @@ const scorch = (() => {
 			logo.src = 'img/scorchlogo.png';
 		},
 
+		//responsible for looping to create the title animation and adding the additional text at the end
 		titleLoop() {
 			let step = game.titleLoopFrame;
 			game.titleAnimation(step);
@@ -186,6 +188,7 @@ const scorch = (() => {
 			requestId = window.requestAnimationFrame(game.frameLoop);
 		},
 
+		//ends the loop that continuously checks and updates the informational display and clears all those html values
 		endLoop() {
 			window.cancelAnimationFrame(requestId);
 			requestId = undefined;
@@ -195,6 +198,7 @@ const scorch = (() => {
 			infoContainer.style['background-color'] = 'white';
 		},
 
+		//sets a clean version of the generated terrain and produces the necessary properties to create a functional tank object, then calls the draw tank and frameloop functions to place the tank and start checking their properties to update the info display
 		placeTank(num) {
 			ctx.putImageData(game.initialTerrain, 0, 0);
 			for (let i = 0; i < num; i++) {
@@ -236,6 +240,7 @@ const scorch = (() => {
 			}
 		},
 
+		//calls the methods of the tank object that draw it, then saves that canvas for clearing projectile lines later
 		drawTanks() {
 			ctx.putImageData(game.initialTerrain, 0, 0);
 			for (let i = 0; i < game.allPlayers.length; i++) {
@@ -301,6 +306,7 @@ const scorch = (() => {
 			// console.log(checkCollision);
 		},
 
+		//checks the rgba bitarray values and selects the correct color name by which to identify which tank object has been hit
 		playerHit(colordata) {
 			let colorString = '';
 			if (colordata > 95 && colordata < 110) {
@@ -328,6 +334,7 @@ const scorch = (() => {
 
 		},
 
+		//checks the length of the allplayers array in the game object, if there is only 1 left then we have our victor
 		checkVictory() {
 			if (game.allPlayers.length == 1) {
 				game.toggleModal();
@@ -337,6 +344,7 @@ const scorch = (() => {
 			}
 		},
 
+		//displays or removes the victory screen modal
 		toggleModal() {
 			// console.log(modalPop.style.display);
 			if (modalPop.style.display == 'block') {
@@ -345,12 +353,13 @@ const scorch = (() => {
 				modalPop.style.display = 'none';
 			}
 			else {
-				winnerDisp.innerText = 'Player '+game.allPlayers[0].num+' wins!';
+				winnerDisp.innerHTML = 'Player '+game.allPlayers[0].num+' wins!</br>click anywhere to start again.';
 				winnerDisp.style['background-color'] = game.allPlayers[0].color;
 				modalPop.style.display = 'block';
 			}
 		},
 
+		//sets all the properties back to where they need to be to run a new round
 		reset() {
 			ctx.putImageData(game.initialTerrain, 0, 0);
 			game.endLoop();
@@ -458,6 +467,7 @@ const scorch = (() => {
 		}
 	}
 
+	//big ol event listener that listens for a click anywhere, but will only run the reset method of the game object if the modal is visible
 	document.addEventListener('click', function(event){
 		if (modalPop.style.display == 'block') {
 			game.reset();
@@ -506,7 +516,7 @@ const scorch = (() => {
 	game.bgGradient();
 	game.drawTerrain();
 	game.bindEvents();
-	game.titleLoop();
+	// game.titleLoop();
 
 });
 
