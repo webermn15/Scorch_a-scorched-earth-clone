@@ -1,7 +1,6 @@
 console.log('canvas linked');
 
-const database = firebase.database();
-
+// const database = firebase.database();
 
 // window.onload = start();
 const scorch = (() => {
@@ -22,14 +21,17 @@ const scorch = (() => {
 	//canvas
 	const canvas = document.getElementById('game-board');
 	const ctx = canvas.getContext('2d');
+	const logo = new Image();
 
 	//canvas background separate from the other one for collision purposes
 	const canvasBackground = document.getElementById('background');
 	const context = canvasBackground.getContext('2d');
 
 
-	//the almighty game object containing all the methods and properties that propel the game forward, into oblivion
+	//the almighty game object containing all the methods and properties that propel the game forward
 	const game = {
+
+		firstLoad: true,
 
 		allPlayers: [],
 
@@ -42,6 +44,8 @@ const scorch = (() => {
 		initialTerrain: null,
 
 		withTanks: null,
+
+		titleLoopFrame: 0,
 
 		//gotta have it ya know
 		bindEvents() {
@@ -60,6 +64,25 @@ const scorch = (() => {
 				game.placeTank(4);
 				game.hideButtons();
 			});
+		},
+
+		titleAnimation(step) {
+			ctx.putImageData(game.initialTerrain, 0, 0);
+			let grow = step / 100;
+			ctx.drawImage(logo, 200, 150, logo.width * grow, logo.height * grow);
+			logo.src = 'img/scorchlogo.png';
+		},
+
+		titleLoop() {
+			let step = game.titleLoopFrame;
+			game.titleAnimation(step);
+			game.titleLoopFrame++;
+			if (step < 76) {
+				window.requestAnimationFrame(game.titleLoop);
+			}
+			else {
+
+			}
 		},
 
 		//keeps players from drawing more and more and more tankss
@@ -146,13 +169,14 @@ const scorch = (() => {
 			angleDisplay.innerHTML = 'Current angle: '+whoseTurn.angle+'.';
 		},
 
-		// gonna change this to requestAnimationFrame
+		//changed to requestanimationframe, from setinterval, and it runs wayyy smoother
 		frameLoop() {
 			game.updateDisplay();
 			window.requestAnimationFrame(game.frameLoop);
 		},
 
 		placeTank(num) {
+			ctx.putImageData(game.initialTerrain, 0 ,0);
 			for (let i = 0; i < num; i++) {
 				let randColor = Math.floor(Math.random() * game.tankColors.length);
 				let color = game.tankColors[randColor]
@@ -389,11 +413,7 @@ const scorch = (() => {
 		}
 	}
 
-
-
-
-	//WACKY LOOKIN keyboard input listener 
-	
+	//WACKY LOOKIN keyboard input listener 	
 	document.addEventListener('keydown', function(event){
 		let key = event.which;
 		let whoseTurn;
@@ -435,16 +455,13 @@ const scorch = (() => {
 	game.bgGradient();
 	game.drawTerrain();
 	game.bindEvents();
+	game.titleLoop();
 
 });
 
 scorch();
 
 
-
-database.ref().set({
-
-});
 
 
 
