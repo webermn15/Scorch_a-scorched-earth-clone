@@ -11,6 +11,8 @@ const scorch = (() => {
 	const powerDisplay = document.getElementById('power');
 	const angleDisplay = document.getElementById('angle');
 	const infoContainer = document.getElementsByClassName('info-container')[0];
+	const modalPop = document.getElementsByClassName('modal')[0];
+	const winnerDisp = document.getElementById('modal-inner');
 
 	//buttons
 	const twoButton = document.getElementById('2players');
@@ -79,6 +81,8 @@ const scorch = (() => {
 
 		//randomly generates a foreground upon which the tanks shall be laid
 		drawTerrain() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
 			//aligns the drawn lines so they're nice and crisp
 			let iStrokeWidth = 1;
 			let iTranslate = (iStrokeWidth % 2) / 2;
@@ -119,8 +123,8 @@ const scorch = (() => {
 				ctx.beginPath();
 				ctx.moveTo(i, maxHeight);
 				ctx.lineTo(i, height);
+				ctx.strokeStyle = 'black';
 				ctx.stroke();
-				// ctx.strokeStyle = 'lightseagreen';
 			}
 
 			game.initialTerrain = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -278,15 +282,13 @@ const scorch = (() => {
 
 			}, 2000);
 
-			console.log(colordata);
-			console.log(colorString);
-			console.log(game.allPlayers);
 		},
 
 		checkVictory() {
 			if (game.allPlayers.length == 1) {
-				alert('player '+game.allPlayers[0].num+' wins!');
-				scorch();
+				winnerDisp.innerText = 'Player '+game.allPlayers[0].num+' wins!';
+				winnerDisp.style['background-color'] = game.allPlayers[0].color;
+				modalPop.style.display = 'block';
 			}
 			else {
 				return;
@@ -298,7 +300,6 @@ const scorch = (() => {
 	//tank class to build tanks for players to control 
 	class Tank {
 		constructor(xpos, ypos, color, num, power, angle, isTurn, bodyData, cannonData) {
-			// this.number = number;
 			this.xpos = xpos;
 			this.ypos = ypos;
 			this.color = color;

@@ -3,38 +3,73 @@
 }*/
 
 body {
-	text-align: center;
 	margin: 0 auto;
 	overflow: hidden;
+	font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
 }
 p {
 	position: absolute;
-	left: calc(50% - 200px);
-	top: 650px;
+	left: calc(50% - 270px);
+	top: 670px;
+	text-align: center;
+}
+.button-container {
+	position: absolute;
+	left: calc(50% - 120px);
+	top: 660px;
 }
 .canvas-container {
+	width: 1000px;
+	height: 625px;
 	position: relative;
 	left: calc(50% - 501px);
 	top: 20px;
 }
 .info-container {
-	margin: 0 auto;
+	margin: 30px auto;
 	text-align: center;
 	width: 1002px;
 	display: flex;
 	justify-content: space-between;
-	margin-top: 5px;
+	font-weight: 600;
 }
 #game-board {
 	border: 1px solid black;
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 1;
+	z-index: 0;
 }
 #background {
 	position: absolute;
 	left: 0;
 	top: 0;
-	z-index: 0;
+	z-index: -1;
 }
+.modal {
+    display: none;
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 625px;
+    width: 1002px;
+    z-index: 1;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); 
+}
+#modal-inner {
+	padding: 60px;
+	margin: 200px auto;
+	width: 300px;
+	border: 2px solid white;
+	font-size: 32px;
+	font-weight: 700;
+	text-align: center;
+}
+
+
+
+
+
+
+
