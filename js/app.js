@@ -31,8 +31,6 @@ const scorch = (() => {
 	//the almighty game object containing all the methods and properties that propel the game forward
 	const game = {
 
-		firstLoad: true,
-
 		allPlayers: [],
 
 		players: 0,
@@ -52,17 +50,17 @@ const scorch = (() => {
 			twoButton.addEventListener('click', ()=> {
 				game.players = 2;
 				game.placeTank(2);
-				game.hideButtons();
+				game.toggleButtons();
 			});
 			threeButton.addEventListener('click', ()=> {
 				game.players = 3;
 				game.placeTank(3);
-				game.hideButtons();
+				game.toggleButtons();
 			});
 			fourButton.addEventListener('click', ()=> {
 				game.players = 4;
 				game.placeTank(4);
-				game.hideButtons();
+				game.toggleButtons();
 			});
 		},
 
@@ -90,10 +88,15 @@ const scorch = (() => {
 		},
 
 		//keeps players from drawing more and more and more tankss
-		hideButtons() {
+		toggleButtons() {
 			let allButtons = document.getElementsByTagName('button');
 			for (let i in allButtons) {
-				allButtons[i].style.display = 'none';
+				if (allButtons[i].style.display = 'none') {
+					allButtons[i].style.display = 'block';
+				}
+				else {
+					allButtons[i].style.display = 'none';
+				}
 			}
 		},
 
@@ -321,6 +324,19 @@ const scorch = (() => {
 			else {
 				return;
 			}
+		},
+
+		reset() {
+			game.allPlayers = [];
+			game.players = 0;
+			game.initialTerrain = null;
+			game.withTanks = null;
+
+			playerDisplay.innerHTML = '';
+			powerDisplay.innerHTML = '';
+			angleDisplay.innerHTML = '';
+			infoContainer.style['background-color'] = 'white';
+
 		}
 	}
 
@@ -417,7 +433,13 @@ const scorch = (() => {
 		}
 	}
 
-	//WACKY LOOKIN keyboard input listener 	
+	document.addEventListener('click', function(event){
+		if (modalPop.style.display == 'block') {
+			game.reset();
+		}
+	});
+
+	//keyboard input listener for tank controls
 	document.addEventListener('keydown', function(event){
 		let key = event.which;
 		let whoseTurn;
