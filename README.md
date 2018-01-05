@@ -2,6 +2,9 @@
 ### Michael Weber's first project for General Assembly's Web Development Immersive program, cohort 10
 
 
+Hosted on pages: (https://webermn15.github.io/wdi-10-project-1/)
+
+
 ***
 
 
