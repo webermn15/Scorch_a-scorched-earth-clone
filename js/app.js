@@ -19,7 +19,7 @@ const scorch = (() => {
 	const twoButton = document.getElementById('2players');
 	const threeButton = document.getElementById('3players');
 	const fourButton = document.getElementById('4players');
-	buttonContainer.style.display == 'block';
+	buttonContainer.style.display = 'block';
 
 	//canvas
 	const canvas = document.getElementById('game-board');
@@ -467,7 +467,7 @@ const scorch = (() => {
 		}
 	}
 
-	//big ol event listener that listens for a click anywhere, but will only run the reset method of the game object if the modal is visible
+	//big ol event listener that listens for a click anywhere, but will only run the reset method of the game object if the modal is visibletermi
 	document.addEventListener('click', function(event){
 		if (modalPop.style.display == 'block') {
 			game.reset();
