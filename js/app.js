@@ -69,7 +69,7 @@ const scorch = (() => {
 		titleAnimation(step) {
 			ctx.putImageData(game.initialTerrain, 0, 0);
 			let grow = step / 100;
-			ctx.drawImage(logo, 200, 150, logo.width * grow, logo.height * grow);
+			ctx.drawImage(logo, 200, 180, logo.width * grow, logo.height * grow);
 			logo.src = 'img/scorchlogo.png';
 		},
 
@@ -81,7 +81,11 @@ const scorch = (() => {
 				window.requestAnimationFrame(game.titleLoop);
 			}
 			else {
-
+				ctx.font = '32px Courier New';
+				ctx.fillStyle = 'white';
+				ctx.fillText('A Scorched Earth clone', 210, 420);
+				ctx.font = '24px Courier New';
+				ctx.fillText('Select the number of players below to begin', 210, 450);
 			}
 		},
 
