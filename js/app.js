@@ -516,7 +516,7 @@ const scorch = (() => {
 	game.bgGradient();
 	game.drawTerrain();
 	game.bindEvents();
-	// game.titleLoop();
+	game.titleLoop();
 
 });
 
