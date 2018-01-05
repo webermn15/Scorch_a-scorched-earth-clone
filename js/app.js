@@ -12,11 +12,14 @@ const scorch = (() => {
 	const infoContainer = document.getElementsByClassName('info-container')[0];
 	const modalPop = document.getElementsByClassName('modal')[0];
 	const winnerDisp = document.getElementById('modal-inner');
+	let requestId = undefined;
 
 	//buttons
+	const buttonContainer = document.getElementById('button-container');
 	const twoButton = document.getElementById('2players');
 	const threeButton = document.getElementById('3players');
 	const fourButton = document.getElementById('4players');
+	buttonContainer.style.display == 'block';
 
 	//canvas
 	const canvas = document.getElementById('game-board');
@@ -89,15 +92,13 @@ const scorch = (() => {
 
 		//keeps players from drawing more and more and more tankss
 		toggleButtons() {
-			let allButtons = document.getElementsByTagName('button');
-			for (let i in allButtons) {
-				if (allButtons[i].style.display = 'none') {
-					allButtons[i].style.display = 'block';
-				}
-				else {
-					allButtons[i].style.display = 'none';
-				}
+			if (buttonContainer.style.display == 'block') {
+				buttonContainer.style.display = 'none';
 			}
+			else {
+				buttonContainer.style.display = 'block';
+			}
+			
 		},
 
 		//coole background generation gradient thing to create a neato bg on a secondary canvas without interfering with the game canvas
@@ -162,6 +163,9 @@ const scorch = (() => {
 
 		//updates the divs outside the canvas with information about current tank properties (angle, power, which player, etc)
 		updateDisplay() {
+			if (game.allPlayers.length <= 0) {
+				return;
+			}
 			let whoseTurn;
 			let playerNumber;
 			for (let i = 0; i < game.allPlayers.length; i++) {
@@ -179,11 +183,20 @@ const scorch = (() => {
 		//changed to requestanimationframe, from setinterval, and it runs wayyy smoother
 		frameLoop() {
 			game.updateDisplay();
-			window.requestAnimationFrame(game.frameLoop);
+			requestId = window.requestAnimationFrame(game.frameLoop);
+		},
+
+		endLoop() {
+			window.cancelAnimationFrame(requestId);
+			requestId = undefined;
+			playerDisplay.innerHTML = '';
+			powerDisplay.innerHTML = '';
+			angleDisplay.innerHTML = '';
+			infoContainer.style['background-color'] = 'white';
 		},
 
 		placeTank(num) {
-			ctx.putImageData(game.initialTerrain, 0 ,0);
+			ctx.putImageData(game.initialTerrain, 0, 0);
 			for (let i = 0; i < num; i++) {
 				let randColor = Math.floor(Math.random() * game.tankColors.length);
 				let color = game.tankColors[randColor]
@@ -317,26 +330,38 @@ const scorch = (() => {
 
 		checkVictory() {
 			if (game.allPlayers.length == 1) {
-				winnerDisp.innerText = 'Player '+game.allPlayers[0].num+' wins!';
-				winnerDisp.style['background-color'] = game.allPlayers[0].color;
-				modalPop.style.display = 'block';
+				game.toggleModal();
 			}
 			else {
 				return;
 			}
 		},
 
+		toggleModal() {
+			// console.log(modalPop.style.display);
+			if (modalPop.style.display == 'block') {
+				winnerDisp.innerText = '';
+				winnerDisp.style['background-color'] = 'transparent';
+				modalPop.style.display = 'none';
+			}
+			else {
+				winnerDisp.innerText = 'Player '+game.allPlayers[0].num+' wins!';
+				winnerDisp.style['background-color'] = game.allPlayers[0].color;
+				modalPop.style.display = 'block';
+			}
+		},
+
 		reset() {
+			ctx.putImageData(game.initialTerrain, 0, 0);
+			game.endLoop();
 			game.allPlayers = [];
 			game.players = 0;
-			game.initialTerrain = null;
+			game.tankColors = ['royalblue', 'crimson', 'lawngreen', 'gold'];
 			game.withTanks = null;
 
-			playerDisplay.innerHTML = '';
-			powerDisplay.innerHTML = '';
-			angleDisplay.innerHTML = '';
-			infoContainer.style['background-color'] = 'white';
-
+			game.toggleButtons();
+			game.toggleModal();
+			game.drawTerrain();
 		}
 	}
 
@@ -481,7 +506,7 @@ const scorch = (() => {
 	game.bgGradient();
 	game.drawTerrain();
 	game.bindEvents();
-	game.titleLoop();
+	// game.titleLoop();
 
 });
 

@@ -13,7 +13,8 @@ p {
 	top: 670px;
 	text-align: center;
 }
-.button-container {
+#button-container {
+	display: block;
 	position: absolute;
 	left: calc(50% - 120px);
 	top: 660px;
@@ -45,12 +46,6 @@ p {
 	left: 0;
 	top: 0;
 	z-index: -1;
-}
-#title {
-	position: absolute;
-	left: 0;
-	top: 0;
-	z-index: 1;
 }
 .modal {
     display: none;
